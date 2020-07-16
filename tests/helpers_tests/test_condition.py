@@ -25,11 +25,10 @@ integerCondition = ['num_users', 10, 'custom_attribute', 'exact']
 doubleCondition = ['pi_value', 3.14, 'custom_attribute', 'exact']
 
 eq_semver_condition_list_variation_1 = [['Android', "2.0", 'custom_attribute', 'semver_eq']]
-eq_semver_condition_list_variation_2 = [['Android', "2.0.1-beta.0", 'custom_attribute', 'semver_eq']]
-eq_semver_condition_list_variation_3 = [['Android', "2.0.0", 'custom_attribute', 'semver_eq']]
-eq_semver_condition_list_variation_4 = [['Android', "2.0.1-beta", 'custom_attribute', 'semver_eq']]
+eq_semver_condition_list_variation_2 = [['Android', "2.0.0", 'custom_attribute', 'semver_eq']]
+eq_semver_condition_list_variation_3 = [['Android', "2.0.1-beta", 'custom_attribute', 'semver_eq']]
 
-lt_semver_condition_list = [['Android', "2.0", 'custom_attribute', 'semver_lt']]
+lt_semver_condition_list = [['Android', "2.0.0", 'custom_attribute', 'semver_lt']]
 gt_semver_condition_list = [['Android', "2.0.0", 'custom_attribute', 'semver_gt']]
 ge_semver_condition_list_variation_1 = [['Android', "2.0.9", 'custom_attribute', 'semver_ge']]
 ge_semver_condition_list_variation_2 = [['Android', "2.0.9-beta", 'custom_attribute', 'semver_ge']]
@@ -120,41 +119,47 @@ class CustomAttributeConditionEvaluator(base.BaseTest):
 
         self.assertIsNone(evaluator.evaluate(0))
 
-    def test_evaluate__returns_true__when_audience_version_matches_condition_version(self):
+    def test_evaluate__returns_true__when_user_version_matches_target_version(self):
 
         evaluator = condition_helper.CustomAttributeConditionEvaluator(
-            eq_semver_condition_list_variation_1, {'Android': '2.0.0'}, self.mock_client_logger
+            eq_semver_condition_list_variation_1, {'Android': '2.0'}, self.mock_client_logger
         )
 
         self.assertStrictTrue(evaluator.evaluate(0))
 
         evaluator = condition_helper.CustomAttributeConditionEvaluator(
-            eq_semver_condition_list_variation_2, {'Android': '2.0.1-beta'}, self.mock_client_logger
+            eq_semver_condition_list_variation_1, {'Android': '2.0.0.0'}, self.mock_client_logger
         )
 
         self.assertStrictTrue(evaluator.evaluate(0))
 
         evaluator = condition_helper.CustomAttributeConditionEvaluator(
-            eq_semver_condition_list_variation_3, {'Android': '2.0'}, self.mock_client_logger
+            eq_semver_condition_list_variation_2, {'Android': '2.0.0'}, self.mock_client_logger
         )
 
         self.assertStrictTrue(evaluator.evaluate(0))
 
         evaluator = condition_helper.CustomAttributeConditionEvaluator(
-            eq_semver_condition_list_variation_4, {'Android': '2.0.1-beta.0.0'}, self.mock_client_logger
+            eq_semver_condition_list_variation_3, {'Android': '2.0.1-beta'}, self.mock_client_logger
         )
 
         self.assertStrictTrue(evaluator.evaluate(0))
 
-    def test_evaluate__returns_true__when_audience_version_does_not_match_condition_version(self):
+    def test_evaluate__returns_true__when_user_version_does_not_match_target_version(self):
 
         evaluator = condition_helper.CustomAttributeConditionEvaluator(
-            eq_semver_condition_list_variation_1, {'Android': '2.1.1'}, self.mock_client_logger
+            eq_semver_condition_list_variation_1, {'Android': '1.0'}, self.mock_client_logger
         )
 
         self.assertStrictFalse(evaluator.evaluate(0))
 
-    def test_evaluate__returns_true__when_audience_version_is_gt_condition_version(self):
+        evaluator = condition_helper.CustomAttributeConditionEvaluator(
+            eq_semver_condition_list_variation_2, {'Android': '2.0'}, self.mock_client_logger
+        )
+
+        self.assertStrictFalse(evaluator.evaluate(0))
+
+    def test_evaluate__returns_true__when_user_version_is_gt_target_version(self):
 
         evaluator = condition_helper.CustomAttributeConditionEvaluator(
             gt_semver_condition_list, {'Android': '2.1.1'}, self.mock_client_logger
@@ -162,7 +167,7 @@ class CustomAttributeConditionEvaluator(base.BaseTest):
 
         self.assertStrictTrue(evaluator.evaluate(0))
 
-    def test_evaluate__returns_true__when_audience_version_is_not_gt_condition_version(self):
+    def test_evaluate__returns_true__when_user_version_is_not_gt_target_version(self):
 
         evaluator = condition_helper.CustomAttributeConditionEvaluator(
             gt_semver_condition_list, {'Android': '1.1.1'}, self.mock_client_logger
@@ -170,7 +175,7 @@ class CustomAttributeConditionEvaluator(base.BaseTest):
 
         self.assertStrictFalse(evaluator.evaluate(0))
 
-    def test_evaluate__returns_true__when_audience_version_is_lt_condition_version(self):
+    def test_evaluate__returns_true__when_user_version_is_lt_target_version(self):
 
         evaluator = condition_helper.CustomAttributeConditionEvaluator(
             lt_semver_condition_list, {'Android': '1.9.1'}, self.mock_client_logger
@@ -178,7 +183,7 @@ class CustomAttributeConditionEvaluator(base.BaseTest):
 
         self.assertStrictTrue(evaluator.evaluate(0))
 
-    def test_evaluate__returns_true__when_audience_version_is_not_lt_condition_version(self):
+    def test_evaluate__returns_true__when_user_version_is_not_lt_target_version(self):
 
         evaluator = condition_helper.CustomAttributeConditionEvaluator(
             lt_semver_condition_list, {'Android': '2.9.1'}, self.mock_client_logger
@@ -186,7 +191,7 @@ class CustomAttributeConditionEvaluator(base.BaseTest):
 
         self.assertStrictFalse(evaluator.evaluate(0))
 
-    def test_evaluate__returns_true__when_audience_version_is_ge_condition_version(self):
+    def test_evaluate__returns_true__when_user_version_is_ge_target_version(self):
 
         evaluator = condition_helper.CustomAttributeConditionEvaluator(
             ge_semver_condition_list_variation_1, {'Android': '2.0.9'}, self.mock_client_logger
@@ -195,18 +200,18 @@ class CustomAttributeConditionEvaluator(base.BaseTest):
         self.assertStrictTrue(evaluator.evaluate(0))
 
         evaluator = condition_helper.CustomAttributeConditionEvaluator(
-            ge_semver_condition_list_variation_1, {'Android': '2.9'}, self.mock_client_logger
+            ge_semver_condition_list_variation_1, {'Android': '2.0.9.0'}, self.mock_client_logger
         )
 
         self.assertStrictTrue(evaluator.evaluate(0))
 
         evaluator = condition_helper.CustomAttributeConditionEvaluator(
-            ge_semver_condition_list_variation_1, {'Android': '2.0.9-beta'}, self.mock_client_logger
+            ge_semver_condition_list_variation_2, {'Android': '2.0.9-beta'}, self.mock_client_logger
         )
 
         self.assertStrictTrue(evaluator.evaluate(0))
 
-    def test_evaluate__returns_true__when_audience_version_is_not_ge_condition_version(self):
+    def test_evaluate__returns_true__when_user_version_is_not_ge_target_version(self):
 
         evaluator = condition_helper.CustomAttributeConditionEvaluator(
             ge_semver_condition_list_variation_1, {'Android': '1.0.0'}, self.mock_client_logger
@@ -214,7 +219,7 @@ class CustomAttributeConditionEvaluator(base.BaseTest):
 
         self.assertStrictFalse(evaluator.evaluate(0))
 
-    def test_evaluate__returns_true__when_audience_version_is_le_condition_version(self):
+    def test_evaluate__returns_true__when_user_version_is_le_target_version(self):
 
         evaluator = condition_helper.CustomAttributeConditionEvaluator(
             le_semver_condition_list_variation_1, {'Android': '2.0.1'}, self.mock_client_logger
@@ -234,7 +239,7 @@ class CustomAttributeConditionEvaluator(base.BaseTest):
 
         self.assertStrictTrue(evaluator.evaluate(0))
 
-    def test_evaluate__returns_true__when_audience_version_is_not_le_condition_version(self):
+    def test_evaluate__returns_true__when_user_version_is_not_le_target_version(self):
 
         evaluator = condition_helper.CustomAttributeConditionEvaluator(
             le_semver_condition_list_variation_1, {'Android': '3.0.1'}, self.mock_client_logger

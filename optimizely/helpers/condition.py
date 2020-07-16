@@ -240,59 +240,44 @@ class CustomAttributeConditionEvaluator(object):
 
     def semver_equal_evaluator(self, index):
 
-        condition_name = self.condition_data[index][0]
-        condition_value = self.condition_data[index][1]
-        user_value = self.attributes.get(condition_name)
-
-        return self.compare_user_version_with_target_version(user_value, condition_value) is 0
+        return self.compare_user_version_with_target_version(index) == 0
 
     def semver_greater_than_evaluator(self, index):
 
-        condition_name = self.condition_data[index][0]
-        condition_value = self.condition_data[index][1]
-        user_value = self.attributes.get(condition_name)
-
-        return self.compare_user_version_with_target_version(user_value, condition_value) is 1
+        return self.compare_user_version_with_target_version(index) == 1
 
     def semver_less_than_evaluator(self, index):
 
-        condition_name = self.condition_data[index][0]
-        condition_value = self.condition_data[index][1]
-        user_value = self.attributes.get(condition_name)
-
-        return self.compare_user_version_with_target_version(user_value, condition_value) is -1
+        return self.compare_user_version_with_target_version(index) == -1
 
     def semver_less_than_and_equal_evaluator(self, index):
-        return self.semver_less_than_evaluator(index) is True or self.semver_equal_evaluator(index) is True
+
+        return self.compare_user_version_with_target_version(index) <= 0
 
     def semver_greater_than_and_equal_evaluator(self, index):
-        return self.semver_greater_than_evaluator(index) is True or self.semver_equal_evaluator(index) is True
 
-    def compare_user_version_with_target_version(self, user_version, target_version):
+        return self.compare_user_version_with_target_version(index) >= 0
 
-        condition_version_parts = target_version.split(".")
+    def compare_user_version_with_target_version(self, index):
+
+        condition_name = self.condition_data[index][0]
+        target_version = self.condition_data[index][1]
+        user_version = self.attributes.get(condition_name)
+
+        target_version_parts = target_version.split(".")
         user_version_parts = user_version.split(".")
 
-        condition_version_parts_len = len(condition_version_parts)
-        user_version_parts_len = len(user_version_parts)
-
-        # fill smaller version with 0s
-        if condition_version_parts_len > user_version_parts_len:
-            for i in range(user_version_parts_len, condition_version_parts_len):
-                user_version_parts.append("0")
-        elif user_version_parts_len > condition_version_parts_len:
-            for i in range(condition_version_parts_len, user_version_parts_len):
-                condition_version_parts.append("0")
-
-        for (idx, _) in enumerate(condition_version_parts):
+        for (idx, _) in enumerate(target_version_parts):
+            if len(user_version_parts) <= idx:
+                return -1
             # compare strings e.g: n1.n2.n3-alpha/beta
-            if not user_version_parts[idx].isnumeric():
-                if user_version_parts[idx] != condition_version_parts[idx]:
+            elif not str(user_version_parts[idx]).isdigit():
+                if user_version_parts[idx] != target_version_parts[idx]:
                     return -1
             # compare numbers e.g: n1.n2.n3
-            elif int(user_version_parts[idx]) > int(condition_version_parts[idx]):
+            elif int(user_version_parts[idx]) > int(target_version_parts[idx]):
                 return 1
-            elif int(user_version_parts[idx]) < int(condition_version_parts[idx]):
+            elif int(user_version_parts[idx]) < int(target_version_parts[idx]):
                 return -1
         return 0
 
