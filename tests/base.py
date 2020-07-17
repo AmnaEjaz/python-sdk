@@ -842,7 +842,7 @@ class BaseTest(unittest.TestCase):
                 },
                 {
                     "id": "18278344267",
-                    "name": "semver_audience",
+                    "name": "semverReleaseLt1.2.3Gt1.0.0",
                     "conditions": [
                         "and",
                         [
@@ -852,7 +852,7 @@ class BaseTest(unittest.TestCase):
                                 {
                                     "value": "1.2.3",
                                     "type": "custom_attribute",
-                                    "name": "Android",
+                                    "name": "android-release",
                                     "match": "semver_lt"
                                 }
                             ]
@@ -864,7 +864,7 @@ class BaseTest(unittest.TestCase):
                                 {
                                     "value": "1.0.0",
                                     "type": "custom_attribute",
-                                    "name": "Android",
+                                    "name": "android-release",
                                     "match": "semver_gt"
                                 }
                             ]
@@ -878,7 +878,7 @@ class BaseTest(unittest.TestCase):
                 {'key': 'lasers', 'id': '594016'},
                 {'key': 'should_do_it', 'id': '594017'},
                 {'key': 'favorite_ice_cream', 'id': '594018'},
-                {'key': 'Android', 'id': '594019'},
+                {'key': 'android-release', 'id': '594019'},
 
             ],
             'botFiltering': False,

@@ -31,12 +31,12 @@ class ConditionMatchTypes(object):
     EXISTS = 'exists'
     GREATER_THAN = 'gt'
     LESS_THAN = 'lt'
-    SUBSTRING = 'substring'
     SEMVER_EQ = 'semver_eq'
-    SEMVER_GT = 'semver_gt'
-    SEMVER_LT = 'semver_lt'
     SEMVER_GE = 'semver_ge'
+    SEMVER_GT = 'semver_gt'
     SEMVER_LE = 'semver_le'
+    SEMVER_LT = 'semver_lt'
+    SUBSTRING = 'substring'
 
 
 class CustomAttributeConditionEvaluator(object):
@@ -250,11 +250,11 @@ class CustomAttributeConditionEvaluator(object):
 
         return self.compare_user_version_with_target_version(index) == -1
 
-    def semver_less_than_and_equal_evaluator(self, index):
+    def semver_less_than_or_equal_evaluator(self, index):
 
         return self.compare_user_version_with_target_version(index) <= 0
 
-    def semver_greater_than_and_equal_evaluator(self, index):
+    def semver_greater_than_or_equal_evaluator(self, index):
 
         return self.compare_user_version_with_target_version(index) >= 0
 
@@ -266,18 +266,22 @@ class CustomAttributeConditionEvaluator(object):
 
         target_version_parts = target_version.split(".")
         user_version_parts = user_version.split(".")
+        user_version_parts_len = len(user_version_parts)
 
         for (idx, _) in enumerate(target_version_parts):
-            if len(user_version_parts) <= idx:
+            if user_version_parts_len <= idx:
                 return -1
             # compare strings e.g: n1.n2.n3-alpha/beta
-            elif not str(user_version_parts[idx]).isdigit():
+            if not user_version_parts[idx].isdigit():
                 if user_version_parts[idx] != target_version_parts[idx]:
                     return -1
+            else:
+                user_version_part = int(user_version_parts[idx])
+                target_version_part = int(target_version_parts[idx])
             # compare numbers e.g: n1.n2.n3
-            elif int(user_version_parts[idx]) > int(target_version_parts[idx]):
+            if user_version_part > target_version_part:
                 return 1
-            elif int(user_version_parts[idx]) < int(target_version_parts[idx]):
+            elif user_version_part < target_version_part:
                 return -1
         return 0
 
@@ -286,12 +290,12 @@ class CustomAttributeConditionEvaluator(object):
         ConditionMatchTypes.EXISTS: exists_evaluator,
         ConditionMatchTypes.GREATER_THAN: greater_than_evaluator,
         ConditionMatchTypes.LESS_THAN: less_than_evaluator,
-        ConditionMatchTypes.SUBSTRING: substring_evaluator,
         ConditionMatchTypes.SEMVER_EQ: semver_equal_evaluator,
+        ConditionMatchTypes.SEMVER_GE: semver_greater_than_or_equal_evaluator,
         ConditionMatchTypes.SEMVER_GT: semver_greater_than_evaluator,
+        ConditionMatchTypes.SEMVER_LE: semver_less_than_or_equal_evaluator,
         ConditionMatchTypes.SEMVER_LT: semver_less_than_evaluator,
-        ConditionMatchTypes.SEMVER_LE: semver_less_than_and_equal_evaluator,
-        ConditionMatchTypes.SEMVER_GE: semver_greater_than_and_equal_evaluator
+        ConditionMatchTypes.SUBSTRING: substring_evaluator
     }
 
     def evaluate(self, index):

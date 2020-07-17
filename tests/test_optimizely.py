@@ -852,13 +852,13 @@ class OptimizelyTest(base.BaseTest):
         with mock.patch('optimizely.event.event_processor.ForwardingEventProcessor.process') as mock_process:
             # Should be included via exact match string audience with id '18278344267'
             self.assertEqual(
-                'A', opt_obj.activate('typed_audience_experiment', 'test_user', {'Android': '1.0.1'}),
+                'A', opt_obj.activate('typed_audience_experiment', 'test_user', {'android-release': '1.0.1'}),
             )
         expected_attr = {
             'type': 'custom',
             'value': '1.0.1',
             'entity_id': '594019',
-            'key': 'Android',
+            'key': 'android-release',
         }
 
         self.assertTrue(expected_attr in [x.__dict__ for x in mock_process.call_args[0][0].visitor_attributes])
@@ -867,13 +867,13 @@ class OptimizelyTest(base.BaseTest):
 
         with mock.patch('optimizely.event.event_processor.ForwardingEventProcessor.process') as mock_process:
             self.assertEqual(
-                'A', opt_obj.activate('typed_audience_experiment', 'test_user', {'Android': "1.2.2"}),
+                'A', opt_obj.activate('typed_audience_experiment', 'test_user', {'android-release': "1.2.2"}),
             )
         expected_attr = {
             'type': 'custom',
             'value': "1.2.2",
             'entity_id': '594019',
-            'key': 'Android',
+            'key': 'android-release',
         }
 
         self.assertTrue(expected_attr in [x.__dict__ for x in mock_process.call_args[0][0].visitor_attributes])
@@ -883,7 +883,7 @@ class OptimizelyTest(base.BaseTest):
         opt_obj = optimizely.Optimizely(json.dumps(self.config_dict_with_typed_audiences))
 
         with mock.patch('optimizely.event.event_processor.ForwardingEventProcessor.process') as mock_process:
-            self.assertIsNone(opt_obj.activate('typed_audience_experiment', 'test_user', {'Android': '1.2.9'}))
+            self.assertIsNone(opt_obj.activate('typed_audience_experiment', 'test_user', {'android-release': '1.2.9'}))
         self.assertEqual(0, mock_process.call_count)
 
     def test_activate__with_attributes__typed_audience_mismatch(self):
