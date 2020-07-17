@@ -264,6 +264,16 @@ class CustomAttributeConditionEvaluator(object):
         target_version = self.condition_data[index][1]
         user_version = self.attributes.get(condition_name)
 
+        if not isinstance(target_version, string_types):
+            self.logger.warning(audience_logs.UNKNOWN_CONDITION_VALUE.format(self._get_condition_json(index),))
+            return None
+
+        if not isinstance(user_version, string_types):
+            self.logger.warning(
+                audience_logs.UNEXPECTED_TYPE.format(self._get_condition_json(index), type(user_version), condition_name)
+            )
+            return None
+
         target_version_parts = target_version.split(".")
         user_version_parts = user_version.split(".")
         user_version_parts_len = len(user_version_parts)

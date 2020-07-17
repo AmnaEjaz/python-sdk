@@ -240,6 +240,22 @@ class CustomAttributeConditionEvaluator(base.BaseTest):
 
         self.assertStrictFalse(evaluator.evaluate(0))
 
+    def test_evaluate__returns_null__when_no_user_version_provided(self):
+
+        evaluator = condition_helper.CustomAttributeConditionEvaluator(
+            semver_equal_2_0_condition_list, {}, self.mock_client_logger
+        )
+
+        self.assertIsNone(evaluator.evaluate(0))
+
+    def test_evaluate__returns_null__when_user_provided_version_is_null(self):
+
+        evaluator = condition_helper.CustomAttributeConditionEvaluator(
+            semver_equal_2_0_condition_list, {'Android': None}, self.mock_client_logger
+        )
+
+        self.assertIsNone(evaluator.evaluate(0))
+
     def test_exists__returns_false__when_no_user_provided_value(self):
 
         evaluator = condition_helper.CustomAttributeConditionEvaluator(
