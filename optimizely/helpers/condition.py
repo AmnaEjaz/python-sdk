@@ -239,34 +239,97 @@ class CustomAttributeConditionEvaluator(object):
         return condition_value in user_value
 
     def semver_equal_evaluator(self, index):
+        """ Evaluate the given semver equal match target version for the user version.
 
+    Args:
+      index: Index of the condition to be evaluated.
+
+    Returns:
+      Boolean:
+        - True if the user version is equal (==) to the target version.
+        - False if the user version is not equal (!=) to the target version.
+      None:
+        - if the user version value is not string type or is null.
+    """
         return self.compare_user_version_with_target_version(index) == 0
 
     def semver_greater_than_evaluator(self, index):
+        """ Evaluate the given semver greater than match target version for the user version.
 
+      Args:
+        index: Index of the condition to be evaluated.
+
+      Returns:
+        Boolean:
+          - True if the user version is greater than the target version.
+          - False if the user version is less than or equal to the target version.
+        None:
+          - if the user version value is not string type or is null.
+    """
         return self.compare_user_version_with_target_version(index) == 1
 
     def semver_less_than_evaluator(self, index):
+        """ Evaluate the given semver less than match target version for the user version.
 
+      Args:
+        index: Index of the condition to be evaluated.
+
+      Returns:
+        Boolean:
+          - True if the user version is less than the target version.
+          - False if the user version is greater than or equal to the target version.
+        None:
+          - if the user version value is not string type or is null.
+    """
         return self.compare_user_version_with_target_version(index) == -1
 
     def semver_less_than_or_equal_evaluator(self, index):
+        """ Evaluate the given semver less than or equal to match target version for the user version.
 
+      Args:
+        index: Index of the condition to be evaluated.
+
+      Returns:
+        Boolean:
+          - True if the user version is less than or equal to the target version.
+          - False if the user version is greater than the target version.
+        None:
+          - if the user version value is not string type or is null.
+    """
         return self.compare_user_version_with_target_version(index) <= 0
 
     def semver_greater_than_or_equal_evaluator(self, index):
+        """ Evaluate the given semver greater than or equal to match target version for the user version.
 
+      Args:
+        index: Index of the condition to be evaluated.
+
+      Returns:
+        Boolean:
+          - True if the user version is greater than or equal to the target version.
+          - False if the user version is less than the target version.
+        None:
+          - if the user version value is not string type or is null.
+    """
         return self.compare_user_version_with_target_version(index) >= 0
 
     def compare_user_version_with_target_version(self, index):
+        """ Method to compare user version with target version.
 
+    Args:
+      index: Index of the condition to be evaluated.
+
+    Returns:
+      Int:
+        -  0 if user version is equal to target version.
+        -  1 if user version is greater than target version.
+        - -1 if user version is less than target version or, in case of exact string match, doesn't match the target version.
+      None:
+        - if the user version value is not string type or is null.
+    """
         condition_name = self.condition_data[index][0]
         target_version = self.condition_data[index][1]
         user_version = self.attributes.get(condition_name)
-
-        if not isinstance(target_version, string_types):
-            self.logger.warning(audience_logs.UNKNOWN_CONDITION_VALUE.format(self._get_condition_json(index),))
-            return None
 
         if not isinstance(user_version, string_types):
             self.logger.warning(
@@ -282,17 +345,17 @@ class CustomAttributeConditionEvaluator(object):
             if user_version_parts_len <= idx:
                 return -1
             # compare strings e.g: n1.n2.n3-alpha/beta
-            if not user_version_parts[idx].isdigit():
+            elif not user_version_parts[idx].isdigit():
                 if user_version_parts[idx] != target_version_parts[idx]:
                     return -1
+            # compare numbers e.g: n1.n2.n3
             else:
                 user_version_part = int(user_version_parts[idx])
                 target_version_part = int(target_version_parts[idx])
-            # compare numbers e.g: n1.n2.n3
-            if user_version_part > target_version_part:
-                return 1
-            elif user_version_part < target_version_part:
-                return -1
+                if user_version_part > target_version_part:
+                    return 1
+                elif user_version_part < target_version_part:
+                    return -1
         return 0
 
     EVALUATORS_BY_MATCH_TYPE = {
