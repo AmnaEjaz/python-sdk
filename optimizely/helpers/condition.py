@@ -313,6 +313,38 @@ class CustomAttributeConditionEvaluator(object):
     """
         return self.compare_user_version_with_target_version(index) >= 0
 
+    def split_semantic_version(self, target):
+
+        target_prefix = target
+        target_suffix = ""
+        if self.is_pre_release(target) or self.is_build(target):
+            target_parts = target.split(self.pre_release_separator() if self.is_pre_release(target) else self.build_separator())
+            if len(target_parts) < 1:
+                return None
+
+            target_prefix = str(target_parts[0])
+            target_suffix = target_parts[1]
+
+        target_version_parts = target_prefix.split(".")
+
+        if len(target_version_parts) <= 0:
+            return None
+        else:
+            target_version_parts.append(target_suffix)
+            return target_version_parts
+
+    def is_pre_release(self, target):
+        return "-" in target
+
+    def pre_release_separator(self):
+        return "-"
+
+    def is_build(self, target):
+        return "+" in target
+
+    def build_separator(self):
+        return "+"
+
     def compare_user_version_with_target_version(self, index):
         """ Method to compare user version with target version.
 
@@ -337,17 +369,19 @@ class CustomAttributeConditionEvaluator(object):
             )
             return None
 
-        target_version_parts = target_version.split(".")
-        user_version_parts = user_version.split(".")
+        target_version_parts = self.split_semantic_version(target_version)
+        user_version_parts = self.split_semantic_version(user_version)
         user_version_parts_len = len(user_version_parts)
 
         for (idx, _) in enumerate(target_version_parts):
             if user_version_parts_len <= idx:
                 return -1
-            # compare strings e.g: n1.n2.n3-alpha/beta
+            # compare strings e.g: n1.n2.n3-alpha/beta/release
             elif not user_version_parts[idx].isdigit():
-                if user_version_parts[idx] != target_version_parts[idx]:
+                if user_version_parts[idx] < target_version_parts[idx]:
                     return -1
+                elif user_version_parts[idx] > target_version_parts[idx]:
+                    return 1
             # compare numbers e.g: n1.n2.n3
             else:
                 user_version_part = int(user_version_parts[idx])

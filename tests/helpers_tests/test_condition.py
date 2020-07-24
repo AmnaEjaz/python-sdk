@@ -31,6 +31,7 @@ semver_greater_than_2_0_0_condition_list = [['Android', "2.0.0", 'custom_attribu
 semver_greater_than_or_equal_2_0_9_beta_condition_list = [['Android', "2.0.9-beta", 'custom_attribute', 'semver_ge']]
 semver_greater_than_or_equal_2_0_9_condition_list = [['Android', "2.0.9", 'custom_attribute', 'semver_ge']]
 semver_less_than_2_0_0_condition_list = [['Android', "2.0.0", 'custom_attribute', 'semver_lt']]
+semver_less_than_2_0_0_release_condition_list = [['Android', "2.0.0-release", 'custom_attribute', 'semver_lt']]
 semver_less_than_or_equal_2_0_1_alpha_condition_list = [['Android', "2.0.1-apha", 'custom_attribute', 'semver_le']]
 semver_less_than_or_equal_2_0_1_condition_list = [['Android', "2.0.1", 'custom_attribute', 'semver_le']]
 
@@ -175,6 +176,13 @@ class CustomAttributeConditionEvaluator(base.BaseTest):
         )
 
         self.assertStrictTrue(evaluator.evaluate(0))
+
+        evaluator = condition_helper.CustomAttributeConditionEvaluator(
+            semver_less_than_2_0_0_release_condition_list, {'Android': '2.0.0-beta'}, self.mock_client_logger
+        )
+
+        self.assertStrictTrue(evaluator.evaluate(0))
+
 
     def test_evaluate__returns_false__when_user_version_is_not_less_than_target_version(self):
 
