@@ -18,9 +18,8 @@ from six import string_types
 
 from . import validator
 from .enums import CommonAudienceEvaluationLogs as audience_logs
+from .enums import Errors, SemverType
 
-class OptimizelyErrors():
-    AttributeFormatInvalid = "Provided attributes are in an invalid format."
 
 class ConditionOperatorTypes(object):
     AND = 'and'
@@ -333,7 +332,7 @@ class CustomAttributeConditionEvaluator(object):
         if self.is_pre_release(target) or self.is_build(target):
             target_parts = target.split(self.pre_release_separator() if self.is_pre_release(target) else self.build_separator())
             if len(target_parts) < 1:
-                raise Exception(OptimizelyErrors.AttributeFormatInvalid)
+                raise Exception(Errors.INVALID_ATTRIBUTE_FORMAT)
 
             target_prefix = str(target_parts[0])
             target_suffix = target_parts[1:]
@@ -341,13 +340,11 @@ class CustomAttributeConditionEvaluator(object):
         target_version_parts = target_prefix.split(".")
         for part in target_version_parts:
             if not part.isdigit():
-                raise Exception(OptimizelyErrors.AttributeFormatInvalid)
+                raise Exception(Errors.INVALID_ATTRIBUTE_FORMAT)
 
         if target_suffix:
             target_version_parts.extend(target_suffix)
-            return target_version_parts
-        else:
-            return target_version_parts
+        return target_version_parts
 
     def is_pre_release(self, target):
         """ Method to check if the given version contains "-"
@@ -360,10 +357,10 @@ class CustomAttributeConditionEvaluator(object):
             - True if the given version does contain "-"
             - False if it doesn't
     """
-        return "-" in target
+        return SemverType.IS_PRE_RELEASE in target
 
     def pre_release_separator(self):
-        return "-"
+        return SemverType.IS_PRE_RELEASE
 
     def is_build(self, target):
         """ Method to check if the given version contains "+"
@@ -376,10 +373,10 @@ class CustomAttributeConditionEvaluator(object):
             - True if the given version does contain "+"
             - False if it doesn't
     """
-        return "+" in target
+        return SemverType.IS_BUILD in target
 
     def build_separator(self):
-        return "+"
+        return SemverType.IS_BUILD
 
     def compare_user_version_with_target_version(self, index):
         """ Method to compare user version with target version.
