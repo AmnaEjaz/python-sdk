@@ -316,6 +316,17 @@ class CustomAttributeConditionEvaluator(object):
         return self.compare_user_version_with_target_version(index) >= 0
 
     def split_semantic_version(self, target):
+        """ Method to split the given version.
+
+      Args:
+        target: Given version.
+
+      Returns:
+        List:
+          - The array of version split into smaller parts i.e major, minor, patch etc
+        Exception:
+          - if the given version is invalid in format
+    """
         target_prefix = target
         target_suffix = ""
 
@@ -338,14 +349,33 @@ class CustomAttributeConditionEvaluator(object):
         else:
             return target_version_parts
 
-
     def is_pre_release(self, target):
+        """ Method to check if the given version contains "-"
+
+      Args:
+        target: Given version in string.
+
+      Returns:
+        Boolean:
+            - True if the given version does contain "-"
+            - False if it doesn't
+    """
         return "-" in target
 
     def pre_release_separator(self):
         return "-"
 
     def is_build(self, target):
+        """ Method to check if the given version contains "+"
+
+      Args:
+        target: Given version in string.
+
+      Returns:
+        Boolean:
+            - True if the given version does contain "+"
+            - False if it doesn't
+    """
         return "+" in target
 
     def build_separator(self):
