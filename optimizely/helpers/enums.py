@@ -162,3 +162,5 @@ class NotificationTypes(object):
 class SemverType(object):
     IS_PRE_RELEASE = '-'
     IS_BUILD = '+'
+    PATCH_INDEX = 3
+    IS_PATCH_PRE_RELEASE = ['release', 'beta']

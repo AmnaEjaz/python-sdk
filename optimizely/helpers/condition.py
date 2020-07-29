@@ -330,7 +330,7 @@ class CustomAttributeConditionEvaluator(object):
         target_suffix = ""
 
         if self.is_pre_release(target) or self.is_build(target):
-            target_parts = target.split(self.pre_release_separator() if self.is_pre_release(target) else self.build_separator())
+            target_parts = target.split(SemverType.IS_PRE_RELEASE if self.is_pre_release(target) else SemverType.IS_BUILD)
             if len(target_parts) < 1:
                 raise Exception(Errors.INVALID_ATTRIBUTE_FORMAT)
 
@@ -359,8 +359,9 @@ class CustomAttributeConditionEvaluator(object):
     """
         return SemverType.IS_PRE_RELEASE in target
 
-    def pre_release_separator(self):
-        return SemverType.IS_PRE_RELEASE
+    def is_patch_pre_release(self, idx, idx_value):
+        return idx == SemverType.PATCH_INDEX and idx_value in SemverType.IS_PATCH_PRE_RELEASE
+
 
     def is_build(self, target):
         """ Method to check if the given version contains "+"
@@ -374,9 +375,6 @@ class CustomAttributeConditionEvaluator(object):
             - False if it doesn't
     """
         return SemverType.IS_BUILD in target
-
-    def build_separator(self):
-        return SemverType.IS_BUILD
 
     def compare_user_version_with_target_version(self, index):
         """ Method to compare user version with target version.
@@ -405,6 +403,7 @@ class CustomAttributeConditionEvaluator(object):
         target_version_parts = self.split_semantic_version(target_version)
         user_version_parts = self.split_semantic_version(user_version)
         user_version_parts_len = len(user_version_parts)
+        target_version_parts_len = len(target_version_parts)
 
         for (idx, _) in enumerate(target_version_parts):
             if user_version_parts_len <= idx:
@@ -423,6 +422,9 @@ class CustomAttributeConditionEvaluator(object):
                     return 1
                 elif user_version_part < target_version_part:
                     return -1
+        if user_version_parts_len > target_version_parts_len:
+            if self.is_patch_pre_release(user_version_parts_len-1, user_version_parts[user_version_parts_len-1]):
+                return -1
         return 0
 
     EVALUATORS_BY_MATCH_TYPE = {
