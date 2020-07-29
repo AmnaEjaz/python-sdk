@@ -17,6 +17,7 @@ from . import entities
 from . import event_builder
 from . import exceptions
 from . import logger as _logging
+from . import user_context
 from .config_manager import AuthDatafilePollingConfigManager
 from .config_manager import PollingConfigManager
 from .config_manager import StaticConfigManager
@@ -79,6 +80,7 @@ class Optimizely(object):
         self.event_processor = event_processor or ForwardingEventProcessor(
             self.event_dispatcher, logger=self.logger, notification_center=self.notification_center,
         )
+        self.user_context = user_context.OptimizelyUserContext()
 
         try:
             self._validate_instantiation_options()
@@ -898,3 +900,16 @@ class Optimizely(object):
             return self.config_manager.optimizely_config
 
         return OptimizelyConfigService(project_config).get_config()
+
+    def set_user_context(self, user: user_context.OptimizelyUserContext):
+        user = user
+
+        if user.user_id == None:
+            uuid = "optimizely-uuid"
+            user.user_id = uuid
+
+    def decide(self):
+        pass
+
+    def decide_all(self):
+        pass
