@@ -15,9 +15,11 @@ after_success:
 
 # Linting and Integration tests need to run first to reset the PR build status to pending.
 stages:
+  - 'Source Clear'
   - 'Lint markdown files'
   - 'Linting'
   - 'Integration tests'
+  - 'Full stack production tests'
   - 'Test'
 
 jobs:
@@ -31,18 +33,6 @@ jobs:
       notifications:
         email: false
 
-    - stage: 'Lint markdown files'
-      os: linux
-      language: generic
-      before_install: skip
-      install:
-        - npm i -g markdown-spellcheck
-      before_script:
-        - wget --quiet https://raw.githubusercontent.com/optimizely/mdspell-config/master/.spelling
-      script:
-        - mdspell -a -n -r --en-us '**/*.md'
-      after_success: skip
-
     - stage: 'Linting'
       language: python
       python: "2.7"
@@ -51,7 +41,9 @@ jobs:
       install: "pip install flake8==3.6.0" 
       script: "flake8"
       after_success: travis_terminate 0
-    - stage: 'Integration tests'
+    
+    - &integrationtest
+      stage: 'Integration tests'
       merge_mode: replace
       env: SDK=python SDK_BRANCH=$TRAVIS_PULL_REQUEST_BRANCH
       cache: false
@@ -62,13 +54,27 @@ jobs:
       script:
         - $HOME/travisci-tools/trigger-script-with-status-update.sh
       after_success: travis_terminate 0
+
+    - <<: *integrationtest
+      stage: 'Full stack production tests'
+      env:
+        SDK=python
+        SDK_BRANCH=$TRAVIS_PULL_REQUEST_BRANCH
+        FULLSTACK_TEST_REPO=ProdTesting
+
     - stage: 'Test'
-      addons:
-        srcclr: true
       dist: xenial
       python: "3.7"
     - stage: 'Test'
-      addons:
-        srcclr: true
       dist: xenial
       python: "3.8"
+
+    - stage: 'Source Clear'
+      if: type = cron
+      addons:
+        srcclr: true
+      before_install: skip
+      install: skip
+      before_script: skip
+      script: skip
+      after_success: skip
