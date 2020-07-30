@@ -157,3 +157,10 @@ class NotificationTypes(object):
     OPTIMIZELY_CONFIG_UPDATE = 'OPTIMIZELY_CONFIG_UPDATE'
     TRACK = 'TRACK:event_key, user_id, attributes, event_tags, event'
     LOG_EVENT = 'LOG_EVENT:log_event'
+
+class OptimizelyDecideOption(object):
+    DISABLE_TRACKING = 'disableTracking'
+    ENABLED_ONLY = 'enabledOnly'
+    BYPASS_UPS = 'bypassUPS'
+    FOR_EXPERIMENT = 'forExperiment'
+    INCLUDE_REASONS = 'includeReasons'

@@ -902,14 +902,10 @@ class Optimizely(object):
         return OptimizelyConfigService(project_config).get_config()
 
     def set_user_context(self, user: user_context.OptimizelyUserContext):
-        user = user
+        self.user_context = user
 
-        if user.user_id == None:
-            uuid = "optimizely-uuid"
-            user.user_id = uuid
-
-    def decide(self):
+    def decide(self, key, user: user_context.OptimizelyUserContext, options: [enums.OptimizelyDecideOption]):
         pass
 
-    def decide_all(self):
+    def decide_all(self, feature_keys, user: user_context.OptimizelyUserContext, options: [enums.OptimizelyDecideOption]):
         pass
