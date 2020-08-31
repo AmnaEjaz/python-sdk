@@ -153,6 +153,18 @@ class CustomAttributeConditionEvaluator(object):
             - if the user version value format is not a valid semantic version.
         """
 
+        if not isinstance(target_version, string_types):
+            self.logger.warning(audience_logs.UNKNOWN_CONDITION_VALUE.format(self._get_condition_json(0), ))
+            return None
+
+        if not isinstance(user_version, string_types):
+            self.logger.warning(
+                audience_logs.UNEXPECTED_TYPE.format(
+                    self._get_condition_json(0), type(user_version), user_version
+                )
+            )
+            return None
+
         target_version_parts = self.split_version(target_version)
         if target_version_parts is None:
             return None
