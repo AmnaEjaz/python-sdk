@@ -172,7 +172,7 @@ class CustomAttributeConditionEvaluatorTest(base.BaseTest):
             custom_err_msg = "Got {} in result. Failed for user version: {}".format(result, user_version)
             self.assertFalse(result, custom_err_msg)
 
-    def test_semver_le__returns_true(self):
+    def test_semver_lt__returns_true(self):
         semver_less_than_2_0_condition_list = [['Android', "2.0", 'custom_attribute', 'semver_lt']]
         user_versions = ['1.9']
         for user_version in user_versions:
@@ -182,7 +182,7 @@ class CustomAttributeConditionEvaluatorTest(base.BaseTest):
             custom_err_msg = "Got {} in result. Failed for user version: {}".format(result, user_version)
             self.assertTrue(result, custom_err_msg)
 
-    def test_semver_le__returns_false(self):
+    def test_semver_lt__returns_false(self):
         semver_less_than_2_0_condition_list = [['Android', "2.0", 'custom_attribute', 'semver_lt']]
         user_versions = ['2.0.0', '2.5.1']
         for user_version in user_versions:
