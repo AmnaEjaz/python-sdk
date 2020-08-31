@@ -25,22 +25,16 @@ integerCondition = ['num_users', 10, 'custom_attribute', 'exact']
 doubleCondition = ['pi_value', 3.14, 'custom_attribute', 'exact']
 
 semver_equal_2_0_0_condition_list = [['Android', "2.0.0", 'custom_attribute', 'semver_eq']]
-semver_equal_2_condition_list = [['Android', "2", 'custom_attribute', 'semver_eq']]
-semver_equal_2_0_condition_list = [['Android', "2.0", 'custom_attribute', 'semver_eq']]
 semver_equal_2_0_1_beta_condition_list = [['Android', "2.0.1-beta", 'custom_attribute', 'semver_eq']]
 semver_greater_than_2_0_0_condition_list = [['Android', "2.0.0", 'custom_attribute', 'semver_gt']]
-semver_greater_than_2_0_condition_list = [['Android', "2.0", 'custom_attribute', 'semver_gt']]
 semver_greater_than_2_0_0_beta_condition_list = [['Android', "2.0.0-beta", 'custom_attribute', 'semver_gt']]
 semver_greater_than_or_equal_2_0_9_beta_condition_list = [['Android', "2.0.9-beta", 'custom_attribute', 'semver_ge']]
 semver_greater_than_or_equal_2_0_9_condition_list = [['Android', "2.0.9", 'custom_attribute', 'semver_ge']]
 semver_less_than_2_0_0_condition_list = [['Android', "2.0.0", 'custom_attribute', 'semver_lt']]
-semver_less_than_2_0_condition_list = [['Android', "2.0", 'custom_attribute', 'semver_lt']]
 semver_less_than_2_0_0_release_condition_list = [['Android', "2.0.0-release", 'custom_attribute', 'semver_lt']]
 semver_less_than_2_0_0_beta_condition_list = [['Android', "2.0.0-beta", 'custom_attribute', 'semver_lt']]
 semver_less_than_or_equal_2_0_1_beta_condition_list = [['Android', "2.0.1-beta", 'custom_attribute', 'semver_le']]
 semver_less_than_or_equal_2_0_1_condition_list = [['Android', "2.0.1", 'custom_attribute', 'semver_le']]
-semver_less_than_or_equal_2_0_condition_list = [['Android', "2.0", 'custom_attribute', 'semver_le']]
-semver_greater_than_or_equal_2_0_condition_list = [['Android', "2.0", 'custom_attribute', 'semver_ge']]
 
 exists_condition_list = [['input_value', None, 'custom_attribute', 'exists']]
 exact_string_condition_list = [['favorite_constellation', 'Lacerta', 'custom_attribute', 'exact']]
@@ -131,96 +125,107 @@ class CustomAttributeConditionEvaluatorTest(base.BaseTest):
         self.assertIsNone(evaluator.evaluate(0))
 
     def test_evaluate__returns_true__when_user_version_matches_target_version(self):
+        semver_equal_2_0_condition_list = [['Android', "2.0", 'custom_attribute', 'semver_eq']]
         user_versions = ['2.0.0', '2.0']
         for user_version in user_versions:
             evaluator = condition_helper.CustomAttributeConditionEvaluator(
                 semver_equal_2_0_condition_list, {'Android': user_version}, self.mock_client_logger)
             result = evaluator.evaluate(0)
             custom_err_msg = "Got {} in result. Failed for user version: {}".format(result, user_version)
-            self.assertEquals(result, True, custom_err_msg)
+            self.assertTrue(result, custom_err_msg)
 
     def test_evaluate__returns_false__when_user_version_matches_target_version(self):
+        semver_equal_2_0_condition_list = [['Android', "2.0", 'custom_attribute', 'semver_eq']]
         user_versions = ['2.9', '1.9']
         for user_version in user_versions:
             evaluator = condition_helper.CustomAttributeConditionEvaluator(
                 semver_equal_2_0_condition_list, {'Android': user_version}, self.mock_client_logger)
             result = evaluator.evaluate(0)
             custom_err_msg = "Got {} in result. Failed for user version: {}".format(result, user_version)
-            self.assertEquals(result, False, custom_err_msg)
+            self.assertFalse(result, custom_err_msg)
 
     def test_evaluate__returns_true__when_user_version_less_than_or_equal_to_target_version(self):
+        semver_less_than_or_equal_2_0_condition_list = [['Android', "2.0", 'custom_attribute', 'semver_le']]
         user_versions = ['2.0.0', '1.9']
         for user_version in user_versions:
             evaluator = condition_helper.CustomAttributeConditionEvaluator(
                 semver_less_than_or_equal_2_0_condition_list, {'Android': user_version}, self.mock_client_logger)
             result = evaluator.evaluate(0)
             custom_err_msg = "Got {} in result. Failed for user version: {}".format(result, user_version)
-            self.assertEquals(result, True, custom_err_msg)
+            self.assertTrue(result, custom_err_msg)
 
     def test_evaluate__returns_false__when_user_version_less_than_or_equal_to_target_version(self):
+        semver_less_than_or_equal_2_0_condition_list = [['Android', "2.0", 'custom_attribute', 'semver_le']]
         user_versions = ['2.5.1']
         for user_version in user_versions:
             evaluator = condition_helper.CustomAttributeConditionEvaluator(
                 semver_less_than_or_equal_2_0_condition_list, {'Android': user_version}, self.mock_client_logger)
             result = evaluator.evaluate(0)
             custom_err_msg = "Got {} in result. Failed for user version: {}".format(result, user_version)
-            self.assertEquals(result, False, custom_err_msg)
+            self.assertFalse(result, custom_err_msg)
 
     def test_evaluate__returns_true__when_user_version_greater_than_or_equal_to_target_version(self):
+        semver_greater_than_or_equal_2_0_condition_list = [['Android', "2.0", 'custom_attribute', 'semver_ge']]
         user_versions = ['2.0.0', '2.9']
         for user_version in user_versions:
             evaluator = condition_helper.CustomAttributeConditionEvaluator(
                 semver_greater_than_or_equal_2_0_condition_list, {'Android': user_version}, self.mock_client_logger)
             result = evaluator.evaluate(0)
             custom_err_msg = "Got {} in result. Failed for user version: {}".format(result, user_version)
-            self.assertEquals(result, True, custom_err_msg)
+            self.assertTrue(result, custom_err_msg)
 
     def test_evaluate__returns_false__when_user_version_greater_than_or_equal_to_target_version(self):
+        semver_greater_than_or_equal_2_0_condition_list = [['Android', "2.0", 'custom_attribute', 'semver_ge']]
         user_versions = ['1.9']
         for user_version in user_versions:
             evaluator = condition_helper.CustomAttributeConditionEvaluator(
                 semver_greater_than_or_equal_2_0_condition_list, {'Android': user_version}, self.mock_client_logger)
             result = evaluator.evaluate(0)
             custom_err_msg = "Got {} in result. Failed for user version: {}".format(result, user_version)
-            self.assertEquals(result, False, custom_err_msg)
+            self.assertFalse(result, custom_err_msg)
 
     def test_evaluate__returns_true__when_user_version_less_than_target_version(self):
+        semver_less_than_2_0_condition_list = [['Android', "2.0", 'custom_attribute', 'semver_lt']]
         user_versions = ['1.9']
         for user_version in user_versions:
             evaluator = condition_helper.CustomAttributeConditionEvaluator(
                 semver_less_than_2_0_condition_list, {'Android': user_version}, self.mock_client_logger)
             result = evaluator.evaluate(0)
             custom_err_msg = "Got {} in result. Failed for user version: {}".format(result, user_version)
-            self.assertEquals(result, True, custom_err_msg)
+            self.assertTrue(result, custom_err_msg)
 
     def test_evaluate__returns_false__when_user_version_less_than_target_version(self):
+        semver_less_than_2_0_condition_list = [['Android', "2.0", 'custom_attribute', 'semver_lt']]
         user_versions = ['2.0.0', '2.5.1']
         for user_version in user_versions:
             evaluator = condition_helper.CustomAttributeConditionEvaluator(
                 semver_less_than_2_0_condition_list, {'Android': user_version}, self.mock_client_logger)
             result = evaluator.evaluate(0)
             custom_err_msg = "Got {} in result. Failed for user version: {}".format(result, user_version)
-            self.assertEquals(result, False, custom_err_msg)
+            self.assertFalse(result, custom_err_msg)
 
     def test_evaluate__returns_true__when_user_version_greater_than_target_version(self):
+        semver_greater_than_2_0_condition_list = [['Android', "2.0", 'custom_attribute', 'semver_gt']]
         user_versions = ['2.9']
         for user_version in user_versions:
             evaluator = condition_helper.CustomAttributeConditionEvaluator(
                 semver_greater_than_2_0_condition_list, {'Android': user_version}, self.mock_client_logger)
             result = evaluator.evaluate(0)
             custom_err_msg = "Got {} in result. Failed for user version: {}".format(result, user_version)
-            self.assertEquals(result, True, custom_err_msg)
+            self.assertTrue(result, custom_err_msg)
 
     def test_evaluate__returns_false__when_user_version_greater_than_target_version(self):
+        semver_greater_than_2_0_condition_list = [['Android', "2.0", 'custom_attribute', 'semver_gt']]
         user_versions = ['2.0.0', '1.9']
         for user_version in user_versions:
             evaluator = condition_helper.CustomAttributeConditionEvaluator(
                 semver_greater_than_2_0_condition_list, {'Android': user_version}, self.mock_client_logger)
             result = evaluator.evaluate(0)
             custom_err_msg = "Got {} in result. Failed for user version: {}".format(result, user_version)
-            self.assertEquals(result, False, custom_err_msg)
+            self.assertFalse(result, custom_err_msg)
 
     def test_evaluate__returns_None__when_user_version_is_not_string(self):
+        semver_greater_than_2_0_condition_list = [['Android', "2.0", 'custom_attribute', 'semver_gt']]
         user_versions = [True, 37]
         for user_version in user_versions:
             evaluator = condition_helper.CustomAttributeConditionEvaluator(
@@ -230,6 +235,7 @@ class CustomAttributeConditionEvaluatorTest(base.BaseTest):
             self.assertIsNone(result, custom_err_msg)
 
     def test_evaluate__returns_None__when_user_version_with_invalid_semantic(self):
+        semver_greater_than_2_0_condition_list = [['Android', "2.0", 'custom_attribute', 'semver_gt']]
         user_versions = ['3.7.2.2', '+']
         for user_version in user_versions:
             evaluator = condition_helper.CustomAttributeConditionEvaluator(
@@ -239,52 +245,55 @@ class CustomAttributeConditionEvaluatorTest(base.BaseTest):
             self.assertIsNone(result, custom_err_msg)
 
     def test_compare_user_version_with_target_version_equal_to_0(self):
+        semver_greater_than_2_0_condition_list = [['Android', "2.0", 'custom_attribute', 'semver_gt']]
         versions = [
             ('2.0.1', '2.0.1'),
             ('2.0.0', '2.0.0'),
-            ('2.9', '2.9.1'),
+            ('2.9.1', '2.9'),
             ('2.9.9', '2.9.9'),
             ('2.9.9-beta', '2.9.9-beta'),
-            ('2.1', '2.1.0'),
-            ('2.1', '2.1.215'),
-            ('2', '2.12'),
-            ('2', '2.785.13')
+            ('2.1.0', '2.1'),
+            ('2.1.215', '2.1'),
+            ('2.12', '2'),
+            ('2.785.13', '2')
         ]
-        for user_version, target_version in versions:
+        for target_version, user_version in versions:
             evaluator = condition_helper.CustomAttributeConditionEvaluator(
                 semver_greater_than_2_0_condition_list, {'Android': user_version}, self.mock_client_logger)
             result = evaluator.compare_user_version_with_target_version(user_version, target_version)
             custom_err_msg = "Got {} in result. Failed for user version: {} and target version: {}".format(result, user_version, target_version)
-            self.assertEquals(result, 0, custom_err_msg)
+            self.assertEqual(result, 0, custom_err_msg)
 
     def test_compare_user_version_with_target_version_greater_than_0(self):
-        versions = [
-            ('2.0.0', '2.0.1'),
-            ('2.0', '3.0.1'),
-            ('2.0', '2.9.1'),
-            ('2.9.0', '2.9.1'),
-            ('2.1.2', '2.1.3-beta'),
-            ('2.1.2-beta', '2.1.2-release'),
-            ('2.1.3-beta', '2.1.3')
-        ]
-        for user_version, target_version in versions:
-            evaluator = condition_helper.CustomAttributeConditionEvaluator(
-                semver_greater_than_2_0_condition_list, {'Android': user_version}, self.mock_client_logger)
-            result = evaluator.compare_user_version_with_target_version(user_version, target_version)
-            custom_err_msg = "Got {} in result. Failed for user version: {} and target version: {}".format(result, user_version, target_version)
-            self.assertEquals(result, 1, custom_err_msg)
-
-    def test_compare_user_version_with_target_version_less_than_0(self):
+        semver_greater_than_2_0_condition_list = [['Android', "2.0", 'custom_attribute', 'semver_gt']]
         versions = [
             ('2.0.1', '2.0.0'),
-            ('3.0', '2.0.1'),
-            ('2.3', '2.0.1'),
-            ('2.3.5', '2.3.1'),
-            ('2.9.8', '2.9'),
+            ('3.0.1', '2.0'),
+            ('2.9.1', '2.0'),
+            ('2.9.1', '2.9.0'),
+            ('2.1.3-beta', '2.1.2'),
             ('2.1.2-release', '2.1.2-beta'),
             ('2.1.3', '2.1.3-beta')
         ]
-        for user_version, target_version in versions:
+        for target_version, user_version in versions:
+            evaluator = condition_helper.CustomAttributeConditionEvaluator(
+                semver_greater_than_2_0_condition_list, {'Android': user_version}, self.mock_client_logger)
+            result = evaluator.compare_user_version_with_target_version(user_version, target_version)
+            custom_err_msg = "Got {} in result. Failed for user version: {} and target version: {}".format(result, user_version, target_version)
+            self.assertEqual(result, 1, custom_err_msg)
+
+    def test_compare_user_version_with_target_version_less_than_0(self):
+        semver_greater_than_2_0_condition_list = [['Android', "2.0", 'custom_attribute', 'semver_gt']]
+        versions = [
+            ('2.0.0', '2.0.1'),
+            ('2.0.1', '3.0'),
+            ('2.0.1', '2.3'),
+            ('2.3.1', '2.3.5'),
+            ('2.9', '2.9.8'),
+            ('2.1.2-beta', '2.1.2-release'),
+            ('2.1.3-beta', '2.1.3')
+        ]
+        for target_version, user_version in versions:
             evaluator = condition_helper.CustomAttributeConditionEvaluator(
                 semver_greater_than_2_0_condition_list, {'Android': user_version}, self.mock_client_logger)
             result = evaluator.compare_user_version_with_target_version(user_version, target_version)
@@ -292,6 +301,7 @@ class CustomAttributeConditionEvaluatorTest(base.BaseTest):
             self.assertEquals(result, -1, custom_err_msg)
 
     def test_compare_invalid_user_version_with(self):
+        semver_greater_than_2_0_condition_list = [['Android', "2.0", 'custom_attribute', 'semver_gt']]
         versions = [
             '-', '.', '..', '+', '+test', ' ', '2 .3. 0', '2.', '.2.2', '3.7.2.2', '3.x', ',', '+build-prerelease'
         ]
@@ -302,19 +312,6 @@ class CustomAttributeConditionEvaluatorTest(base.BaseTest):
                 semver_greater_than_2_0_condition_list, {'Android': user_version}, self.mock_client_logger)
             result = evaluator.compare_user_version_with_target_version(user_version, target_version)
             custom_err_msg = "Got {} in result. Failed for user version: {}".format(result, user_version)
-            self.assertIsNone(result, custom_err_msg)
-
-    def test_compare_user_version_with_target_version_using_invalid_data(self):
-        versions = [
-            ('2.0.1', True),
-            (0, '2.0.1')
-        ]
-
-        for user_version, target_version in versions:
-            evaluator = condition_helper.CustomAttributeConditionEvaluator(
-                semver_greater_than_2_0_condition_list, {'Android': user_version}, self.mock_client_logger)
-            result = evaluator.compare_user_version_with_target_version(user_version, target_version)
-            custom_err_msg = "Got {} in result. Failed for user version: {} nad target version: {}".format(result, user_version, target_version)
             self.assertIsNone(result, custom_err_msg)
 
     def test_exists__returns_false__when_no_user_provided_value(self):
