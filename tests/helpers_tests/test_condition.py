@@ -248,7 +248,7 @@ class CustomAttributeConditionEvaluatorTest(base.BaseTest):
         for target_version, user_version in versions:
             evaluator = condition_helper.CustomAttributeConditionEvaluator(
                 semver_greater_than_2_0_condition_list, {'Android': user_version}, self.mock_client_logger)
-            result = evaluator.compare_user_version_with_target_version(user_version, target_version)
+            result = evaluator.compare_user_version_with_target_version(target_version, user_version)
             custom_err_msg = "Got {} in result. Failed for user version: {} and target version: {}".format(result, user_version, target_version)
             self.assertEqual(result, 0, custom_err_msg)
 
@@ -266,7 +266,7 @@ class CustomAttributeConditionEvaluatorTest(base.BaseTest):
         for target_version, user_version in versions:
             evaluator = condition_helper.CustomAttributeConditionEvaluator(
                 semver_greater_than_2_0_condition_list, {'Android': user_version}, self.mock_client_logger)
-            result = evaluator.compare_user_version_with_target_version(user_version, target_version)
+            result = evaluator.compare_user_version_with_target_version(target_version, user_version)
             custom_err_msg = "Got {} in result. Failed for user version: {} and target version: {}".format(result, user_version, target_version)
             self.assertEqual(result, 1, custom_err_msg)
 
@@ -284,7 +284,7 @@ class CustomAttributeConditionEvaluatorTest(base.BaseTest):
         for target_version, user_version in versions:
             evaluator = condition_helper.CustomAttributeConditionEvaluator(
                 semver_greater_than_2_0_condition_list, {'Android': user_version}, self.mock_client_logger)
-            result = evaluator.compare_user_version_with_target_version(user_version, target_version)
+            result = evaluator.compare_user_version_with_target_version(target_version, user_version)
             custom_err_msg = "Got {} in result. Failed for user version: {} and target version: {}".format(result, user_version, target_version)
             self.assertEquals(result, -1, custom_err_msg)
 
