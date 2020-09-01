@@ -13,6 +13,7 @@
 
 import json
 import numbers
+import sys
 
 from six import string_types
 
@@ -106,7 +107,9 @@ class CustomAttributeConditionEvaluator(object):
             - True if the given version is pre-release
             - False if it doesn't
         """
-        return VersionType.IS_PRE_RELEASE in version
+        return VersionType.IS_PRE_RELEASE in version and \
+                (version.find("-") if version.find("-") >= 0 else sys.maxsize) < \
+                (version.find("+") if version.find("+") >= 0 else sys.maxsize)
 
     def is_build(self, version):
         """ Method to check given version is a build version.
@@ -121,7 +124,9 @@ class CustomAttributeConditionEvaluator(object):
             - True if the given version is a build version
             - False if it doesn't
         """
-        return VersionType.IS_BUILD in version
+        return VersionType.IS_BUILD in version and \
+                (version.find("+") if version.find("+") >= 0 else sys.maxsize) < \
+                (version.find("-") if version.find("-") >= 0 else sys.maxsize)
 
     def has_white_space(self, version):
         """ Method to check if the given version contains " " (white space)
@@ -135,6 +140,34 @@ class CustomAttributeConditionEvaluator(object):
             - False if it doesn't
         """
         return VersionType.HAS_WHITE_SPACE in version
+
+    def is_build_limit_exceeded(self, version):
+        """ Method to check if the given version contains two + (1.0.0+1+2)
+
+        Args:
+          version: Given version in string.
+
+        Returns:
+          Boolean:
+            - True if the given version does contain whitespace
+            - False if it doesn't
+        """
+
+        return len(version.split(VersionType.IS_BUILD)) > 2
+
+    def is_release_limit_exceeded(self, version):
+        """ Method to check if the given version contains two + (1.0.0+1+2)
+
+        Args:
+          version: Given version in string.
+
+        Returns:
+          Boolean:
+            - True if the given version does contain whitespace
+            - False if it doesn't
+        """
+
+        return len(version.split(VersionType.IS_PRE_RELEASE)) > 3
 
     def compare_user_version_with_target_version(self, target_version, user_version):
         """ Method to compare user version with target version.
@@ -161,25 +194,52 @@ class CustomAttributeConditionEvaluator(object):
         if user_version_parts is None:
             return None
 
-        user_version_parts_len = len(user_version_parts)
+        # user version_parts = [[version], [pre-releases], [builds]]
+        # target version_parts = [[version], [pre-releases], [builds]]
 
-        for (idx, _) in enumerate(target_version_parts):
+        # check first part(versions)
+        user_version_parts_len = len(user_version_parts[0])
+
+        for (idx, _) in enumerate(target_version_parts[0]):
             if user_version_parts_len <= idx:
                 return 1 if self.is_pre_release(target_version) else -1
-            elif not user_version_parts[idx].isdigit():
-                if user_version_parts[idx] < target_version_parts[idx]:
+            elif not user_version_parts[0][idx].isdigit():
+
+                if user_version_parts[0][idx] < target_version_parts[0][idx]:
                     return -1
-                elif user_version_parts[idx] > target_version_parts[idx]:
+                elif user_version_parts[0][idx] > target_version_parts[0][idx]:
                     return 1
             else:
-                user_version_part = int(user_version_parts[idx])
-                target_version_part = int(target_version_parts[idx])
+                user_version_part = int(user_version_parts[0][idx])
+                target_version_part = int(target_version_parts[0][idx])
                 if user_version_part > target_version_part:
                     return 1
                 elif user_version_part < target_version_part:
                     return -1
-        if self.is_pre_release(user_version) and not self.is_pre_release(target_version):
-            return -1
+
+        # checking pre-release
+            if len(user_version_parts[1]) < len(target_version_parts[1]):
+                return -1
+
+            user_pre_release_parts_len = len(user_version_parts[1])
+
+            for (idx, _) in enumerate(target_version_parts[1]):
+                if user_pre_release_parts_len > idx:
+                    if user_version_parts[1][idx] < target_version_parts[1][idx]:
+                        return -1
+                    elif user_version_parts[1][idx] > target_version_parts[1][idx]:
+                        return 1
+
+            if len(user_version_parts[2]) < len(target_version_parts[2]):
+                return -1
+            user_pre_release_parts_len = len(user_version_parts[2])
+
+            for (idx, _) in enumerate(target_version_parts[2]):
+                if user_pre_release_parts_len > idx:
+                    if user_version_parts[2][idx] < target_version_parts[2][idx]:
+                        return -1
+                    elif user_version_parts[2][idx] > target_version_parts[2][idx]:
+                        return 1
         return 0
 
     def exact_evaluator(self, index):
@@ -603,11 +663,12 @@ class CustomAttributeConditionEvaluator(object):
             - if the given version is invalid in format
         """
         target_prefix = version
-        target_suffix = ""
-        target_parts = []
+        pre_releases = []
+        builds = []
 
-        # check that version shouldn't have white space
-        if self.has_white_space(version):
+        # check that version shouldn't have white space, more than 1 builds and more than 2 pre-releases
+        if self.has_white_space(version) or self.is_release_limit_exceeded(version) or \
+                self.is_build_limit_exceeded(version):
             self.logger.warning(Errors.INVALID_ATTRIBUTE_FORMAT)
             return None
 
@@ -615,16 +676,45 @@ class CustomAttributeConditionEvaluator(object):
         # otherwise check for build e.g. 1.0.0+001 where 001 is a build metadata
         if self.is_pre_release(version):
             target_parts = version.split(VersionType.IS_PRE_RELEASE)
+            if target_parts:
+                if len(target_parts) < 1:
+                    self.logger.warning(Errors.INVALID_ATTRIBUTE_FORMAT)
+                    return None
+
+            # break into prefix and suffix
+            target_prefix = str(target_parts[0])
+            target_suffix = ''.join(target_parts[1:])
+
+            # check if there is any build in suffix
+            if self.is_build(target_suffix):
+                target_parts = target_suffix.split(VersionType.IS_BUILD)
+
+                # assign first part into pre-release as with was first split using VersionType.IS_PRE_RELEASE and
+                # second part into build
+                pre_releases.append(target_parts[0])
+                builds.append(target_suffix)
+
+            else:
+                # if there is no build then assign whole part into release
+                pre_releases.extend(target_parts[1:])
+
         elif self.is_build(version):
             target_parts = version.split(VersionType.IS_BUILD)
 
-        # split version into prefix and suffix
-        if target_parts:
-            if len(target_parts) < 1:
-                self.logger.warning(Errors.INVALID_ATTRIBUTE_FORMAT)
-                return None
+            # break into prefix and suffix
             target_prefix = str(target_parts[0])
-            target_suffix = target_parts[1:]
+            target_suffix = ''.join(target_parts[1:])
+
+            if self.is_pre_release(target_suffix):
+                target_parts = target_suffix.split(VersionType.IS_PRE_RELEASE)
+
+                # assign first part into build as with was first split using VersionType.IS_BUILD and
+                # second part into pre-release
+                builds.append(target_parts[0])
+                pre_releases.append(target_parts[1])
+            else:
+                # if there is no release then assign whole part into build
+                builds.extend(target_parts[1:])
 
         # check dot counts in target_prefix
         dot_count = target_prefix.count(".")
@@ -640,10 +730,10 @@ class CustomAttributeConditionEvaluator(object):
             if not part.isdigit():
                 self.logger.warning(Errors.INVALID_ATTRIBUTE_FORMAT)
                 return None
-
-        if target_suffix:
-            target_version_parts.extend(target_suffix)
-        return target_version_parts
+            elif len(part) > 1 and len(part) - len(part.lstrip('0')) > 0:
+                self.logger.warning(Errors.INVALID_ATTRIBUTE_FORMAT)
+                return None
+        return [target_version_parts, pre_releases, builds]
 
     def evaluate(self, index):
         """ Given a custom attribute audience condition and user attributes, evaluate the
