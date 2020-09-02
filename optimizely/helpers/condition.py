@@ -223,7 +223,7 @@ class CustomAttributeConditionEvaluator(object):
             return None
 
         if not self.is_value_type_valid_for_exact_conditions(user_value) or not validator.are_values_same_type(
-                condition_value, user_value
+            condition_value, user_value
         ):
             self.logger.warning(
                 audience_logs.UNEXPECTED_TYPE.format(self._get_condition_json(index), type(user_value), condition_name)
@@ -404,7 +404,7 @@ class CustomAttributeConditionEvaluator(object):
         user_value = self.attributes.get(condition_name)
 
         if not isinstance(condition_value, string_types):
-            self.logger.warning(audience_logs.UNKNOWN_CONDITION_VALUE.format(self._get_condition_json(index), ))
+            self.logger.warning(audience_logs.UNKNOWN_CONDITION_VALUE.format(self._get_condition_json(index),))
             return None
 
         if not isinstance(user_value, string_types):
