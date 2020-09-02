@@ -217,7 +217,7 @@ class CustomAttributeConditionEvaluator(object):
         user_value = self.attributes.get(condition_name)
 
         if not self.is_value_type_valid_for_exact_conditions(condition_value) or (
-                self.is_value_a_number(condition_value) and not validator.is_finite_number(condition_value)
+            self.is_value_a_number(condition_value) and not validator.is_finite_number(condition_value)
         ):
             self.logger.warning(audience_logs.UNKNOWN_CONDITION_VALUE.format(self._get_condition_json(index)))
             return None
