@@ -310,8 +310,8 @@ class CustomAttributeConditionEvaluatorTest(base.BaseTest):
 
     def test_compare_invalid_user_version_with(self):
         semver_greater_than_2_0_condition_list = [['Android', "2.0", 'custom_attribute', 'semver_gt']]
-        versions = ['-', '.', '..', '+', '+test', ' ', '2 .3. 0', '2.', '.2.2', '3.7.2.2', '3.x', ','
-                    , '+build-prerelease', '2..2']
+        versions = ['-', '.', '..', '+', '+test', ' ', '2 .3. 0', '2.', '.2.2', '3.7.2.2', '3.x', ',',
+                    '+build-prerelease', '2..2']
         target_version = '2.1.0'
 
         for user_version in versions:
