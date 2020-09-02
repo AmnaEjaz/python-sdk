@@ -108,8 +108,8 @@ class CustomAttributeConditionEvaluator(object):
             - False if it doesn't
         """
         return VersionType.IS_PRE_RELEASE in version and \
-                (version.find("-") if version.find("-") >= 0 else sys.maxsize) < \
-                (version.find("+") if version.find("+") >= 0 else sys.maxsize)
+               (version.find("-") if version.find("-") >= 0 else sys.maxsize) < \
+               (version.find("+") if version.find("+") >= 0 else sys.maxsize)
 
     def is_build(self, version):
         """ Method to check given version is a build version.
@@ -125,8 +125,8 @@ class CustomAttributeConditionEvaluator(object):
             - False if it doesn't
         """
         return VersionType.IS_BUILD in version and \
-                (version.find("+") if version.find("+") >= 0 else sys.maxsize) < \
-                (version.find("-") if version.find("-") >= 0 else sys.maxsize)
+               (version.find("+") if version.find("+") >= 0 else sys.maxsize) < \
+               (version.find("-") if version.find("-") >= 0 else sys.maxsize)
 
     def has_white_space(self, version):
         """ Method to check if the given version contains " " (white space)
@@ -166,62 +166,36 @@ class CustomAttributeConditionEvaluator(object):
         if user_version_parts is None:
             return None
 
-        # user version_parts = [[version], [pre-releases], [builds]]
-        # target version_parts = [[version], [pre-releases], [builds]]
+        user_version_parts_len = len(user_version_parts)
 
-        # check first part(versions)
-        user_version_parts_len = len(user_version_parts[0])
-
-        for (idx, _) in enumerate(target_version_parts[0]):
+        for (idx, _) in enumerate(target_version_parts):
             if user_version_parts_len <= idx:
-                return 1 if self.is_pre_release(target_version) else -1
-            elif not user_version_parts[0][idx].isdigit():
-
-                if user_version_parts[0][idx] < target_version_parts[0][idx]:
-                    return -1
-                elif user_version_parts[0][idx] > target_version_parts[0][idx]:
+                return 1 if self.is_pre_release(target_version) or self.is_build(target_version) else -1
+            elif not user_version_parts[idx].isdigit():
+                if (self.is_pre_release(user_version) and self.is_pre_release(target_version)) or \
+                        (self.is_build(user_version) and self.is_build(target_version)):
+                    if user_version_parts[idx] < target_version_parts[idx]:
+                        return -1
+                    elif user_version_parts[idx] > target_version_parts[idx]:
+                        return 1
+                elif self.is_build(user_version):
                     return 1
+                elif self.is_build(target_version):
+                    return -1
             else:
-                user_version_part = int(user_version_parts[0][idx])
-                target_version_part = int(target_version_parts[0][idx])
+                user_version_part = int(user_version_parts[idx])
+                target_version_part = int(target_version_parts[idx])
                 if user_version_part > target_version_part:
                     return 1
                 elif user_version_part < target_version_part:
                     return -1
 
-        # check if user has pre-release or build and target hasn't
-        if (user_version_parts[1] or user_version_parts[2]) and (
-                not target_version_parts[1] and not target_version_parts[2]):
+        if (self.is_pre_release(user_version) or self.is_build(user_version)) and (
+                not self.is_pre_release(target_version) and not self.is_build(target_version)):
             return -1
-
-        elif (not user_version_parts[1] and not user_version_parts[2]) and (
-                target_version_parts[1] or target_version_parts[2]):
+        elif (not self.is_pre_release(user_version) and not self.is_build(user_version)) and (
+                self.is_pre_release(target_version) or self.is_build(target_version)):
             return 1
-
-        # checking build
-        if len(user_version_parts[2]) < len(target_version_parts[2]):
-            return -1
-        user_pre_release_parts_len = len(user_version_parts[2])
-
-        for (idx, _) in enumerate(target_version_parts[2]):
-            if user_pre_release_parts_len > idx:
-                if user_version_parts[2][idx] < target_version_parts[2][idx]:
-                    return -1
-                elif user_version_parts[2][idx] > target_version_parts[2][idx]:
-                    return 1
-
-        # checking pre-release
-        if len(user_version_parts[1]) < len(target_version_parts[1]):
-            return -1
-
-        user_pre_release_parts_len = len(user_version_parts[1])
-
-        for (idx, _) in enumerate(target_version_parts[1]):
-            if user_pre_release_parts_len > idx:
-                if user_version_parts[1][idx] < target_version_parts[1][idx]:
-                    return -1
-                elif user_version_parts[1][idx] > target_version_parts[1][idx]:
-                    return 1
         return 0
 
     def exact_evaluator(self, index):
@@ -243,13 +217,13 @@ class CustomAttributeConditionEvaluator(object):
         user_value = self.attributes.get(condition_name)
 
         if not self.is_value_type_valid_for_exact_conditions(condition_value) or (
-            self.is_value_a_number(condition_value) and not validator.is_finite_number(condition_value)
+                self.is_value_a_number(condition_value) and not validator.is_finite_number(condition_value)
         ):
             self.logger.warning(audience_logs.UNKNOWN_CONDITION_VALUE.format(self._get_condition_json(index)))
             return None
 
         if not self.is_value_type_valid_for_exact_conditions(user_value) or not validator.are_values_same_type(
-            condition_value, user_value
+                condition_value, user_value
         ):
             self.logger.warning(
                 audience_logs.UNEXPECTED_TYPE.format(self._get_condition_json(index), type(user_value), condition_name)
@@ -430,7 +404,7 @@ class CustomAttributeConditionEvaluator(object):
         user_value = self.attributes.get(condition_name)
 
         if not isinstance(condition_value, string_types):
-            self.logger.warning(audience_logs.UNKNOWN_CONDITION_VALUE.format(self._get_condition_json(index),))
+            self.logger.warning(audience_logs.UNKNOWN_CONDITION_VALUE.format(self._get_condition_json(index), ))
             return None
 
         if not isinstance(user_value, string_types):
@@ -645,46 +619,27 @@ class CustomAttributeConditionEvaluator(object):
             - if the given version is invalid in format
         """
         target_prefix = version
-        pre_releases = []
-        builds = []
+        target_suffix = ""
+        target_parts = []
 
-        # check that version shouldn't have white space, more than 1 builds and more than 2 pre-releases
+        # check that version shouldn't have white space
         if self.has_white_space(version):
             self.logger.warning(Errors.INVALID_ATTRIBUTE_FORMAT)
             return None
 
         # check for pre release e.g. 1.0.0-alpha where 'alpha' is a pre release
         # otherwise check for build e.g. 1.0.0+001 where 001 is a build metadata
-        if self.is_pre_release(version):
-            target_parts = version.split(VersionType.IS_PRE_RELEASE)
-            if target_parts:
-                if len(target_parts) < 1:
-                    self.logger.warning(Errors.INVALID_ATTRIBUTE_FORMAT)
-                    return None
+        if self.is_pre_release(version) or self.is_build(version):
+            target_parts = version.split(VersionType.IS_PRE_RELEASE, 1) if self.is_pre_release(version) else \
+                version.split(VersionType.IS_BUILD, 1)
 
-            # break into prefix and suffix
+        # split version into prefix and suffix
+        if target_parts:
+            if len(target_parts) < 1:
+                self.logger.warning(Errors.INVALID_ATTRIBUTE_FORMAT)
+                return None
             target_prefix = str(target_parts[0])
-            target_suffix = ''.join(target_parts[1:])
-
-            # check if there is any build in suffix
-            if self.is_build(target_suffix):
-                target_parts = target_suffix.split(VersionType.IS_BUILD)
-
-                # assign first part into pre-release as with was first split using VersionType.IS_PRE_RELEASE and
-                # second part into build
-                pre_releases.append(target_parts[0])
-                builds.append(target_suffix)
-
-            else:
-                # if there is no build then assign whole part into release
-                pre_releases.extend(target_parts[1:])
-
-        elif self.is_build(version):
-            target_parts = version.split(VersionType.IS_BUILD)
-
-            # break into prefix and suffix (in tis case builds)
-            target_prefix = str(target_parts[0])
-            builds.extend(target_parts[1:])
+            target_suffix = target_parts[1:]
 
         # check dot counts in target_prefix
         dot_count = target_prefix.count(".")
@@ -700,10 +655,10 @@ class CustomAttributeConditionEvaluator(object):
             if not part.isdigit():
                 self.logger.warning(Errors.INVALID_ATTRIBUTE_FORMAT)
                 return None
-            elif len(part) > 1 and len(part) - len(part.lstrip('0')) > 0:
-                self.logger.warning(Errors.INVALID_ATTRIBUTE_FORMAT)
-                return None
-        return [target_version_parts, pre_releases, builds]
+
+        if target_suffix:
+            target_version_parts.extend(target_suffix)
+        return target_version_parts
 
     def evaluate(self, index):
         """ Given a custom attribute audience condition and user attributes, evaluate the
