@@ -107,10 +107,15 @@ class CustomAttributeConditionEvaluator(object):
             - True if the given version is pre-release
             - False if it doesn't
         """
-        return VersionType.IS_PRE_RELEASE in version and \
-            (version.find(VersionType.IS_PRE_RELEASE) if version.find(
-               VersionType.IS_PRE_RELEASE) >= 0 else sys.maxsize) < \
-            (version.find(VersionType.IS_BUILD) if version.find(VersionType.IS_BUILD) >= 0 else sys.maxsize)
+        if VersionType.IS_PRE_RELEASE in version:
+            user_version_release_index = version.find(VersionType.IS_PRE_RELEASE)
+            user_version_build_index = version.find(VersionType.IS_BUILD)
+            if (user_version_release_index < user_version_build_index) or (user_version_build_index < 0):
+                return True
+            else:
+                return False
+        else:
+            return False
 
     def is_build(self, version):
         """ Method to check given version is a build version.
@@ -125,10 +130,15 @@ class CustomAttributeConditionEvaluator(object):
             - True if the given version is a build version
             - False if it doesn't
         """
-        return VersionType.IS_BUILD in version and \
-            (version.find(VersionType.IS_BUILD) if version.find(VersionType.IS_BUILD) >= 0 else sys.maxsize) < \
-            (version.find(VersionType.IS_PRE_RELEASE) if version.find(VersionType.IS_PRE_RELEASE) >= 0
-                else sys.maxsize)
+        if VersionType.IS_BUILD in version:
+            user_version_release_index = version.find(VersionType.IS_PRE_RELEASE)
+            user_version_build_index = version.find(VersionType.IS_BUILD)
+            if (user_version_build_index < user_version_release_index) or (user_version_release_index < 0):
+                return True
+            else:
+                return False
+        else:
+            return False
 
     def has_white_space(self, version):
         """ Method to check if the given version contains " " (white space)
