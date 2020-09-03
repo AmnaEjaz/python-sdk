@@ -13,7 +13,6 @@
 
 import json
 import numbers
-import sys
 
 from six import string_types
 
