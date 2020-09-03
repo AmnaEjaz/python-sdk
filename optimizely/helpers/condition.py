@@ -112,7 +112,6 @@ class CustomAttributeConditionEvaluator(object):
             user_version_build_index = version.find(VersionType.IS_BUILD)
             if (user_version_release_index < user_version_build_index) or (user_version_build_index < 0):
                 return True
-
         return False
 
     def is_build(self, version):
